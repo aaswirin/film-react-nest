@@ -60,14 +60,21 @@ export class FilmsRepository implements IFilmsRepository {
    * @return boolean - продано
    */
   async salePlace(orderData: SalePlaceDTO): Promise<boolean> {
-    await this.filmsModel.updateOne(
+    const res = await this.filmsModel.updateOne(
       {
         id: orderData.film,
-        'shedule.id': orderData.session,
+        'schedule.id': orderData.session,
       },
-      { $push: { 'schedule.$.taken': [`${orderData.place}`] } },
+      {
+        $addToSet: {
+          'schedule.$[s].taken': orderData.place,
+        },
+      },
+      {
+        arrayFilters: [{ 's.id': orderData.session }],
+      },
     );
 
-    return true;
+    return res.modifiedCount > 0;
   }
 }

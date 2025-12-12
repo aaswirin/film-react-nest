@@ -4,11 +4,15 @@
 
 import { Injectable } from '@nestjs/common';
 import { FilmsRepository } from '../repository/films.repository';
+import { OrderRepository } from '../repository/order.repository';
 import { OrderDTO, TicketDTO } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly filmsRepository: FilmsRepository) {}
+  constructor(
+    private readonly filmsRepository: FilmsRepository,
+    private readonly orderRepository: OrderRepository,
+  ) {}
 
   async createOrder(orderData: OrderDTO): Promise<any> {
     const ticketsData: TicketDTO[] = orderData.tickets;
@@ -34,8 +38,10 @@ export class OrderService {
         place: `${order.row}:${order.seat}`,
       });
 
+      console.log(sale);
       if (sale) {
-        const id = 3333;
+        const id = await this.orderRepository.saveOrder(orderData);
+        console.log(id);
         const data = { ...order, id };
         saleData.push(data);
       }

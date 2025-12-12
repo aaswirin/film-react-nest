@@ -12,7 +12,8 @@ export class FilmsController {
 
   @Get()
   async getAllFilms(): Promise<ResponseFilms> {
-    return this.filmsService.getAll();
+    const films = this.filmsService.getAll();
+    return films;
   }
 
   @HttpCode(200)

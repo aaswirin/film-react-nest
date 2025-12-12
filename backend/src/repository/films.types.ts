@@ -39,6 +39,7 @@ export class Film {
 }
 
 export type FilmDocument = Film & Document;
+
 export const FilmSchema = SchemaFactory.createForClass(Film);
 
 export type TSchedule = {
