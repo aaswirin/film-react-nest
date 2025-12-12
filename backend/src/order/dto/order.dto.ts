@@ -10,14 +10,15 @@ import {
   IsEmail,
   IsOptional,
   IsPhoneNumber,
+  IsString,
 } from 'class-validator';
 
 /* Билет */
-export class TicketDto {
+export class TicketDTO {
   @IsMongoId()
   film: string; // ID фильма
   @IsMongoId()
-  session: string; // ID сессии??
+  session: string; // ID сеанса
   @IsInt()
   @Min(1)
   row: number; // Ряд
@@ -27,13 +28,23 @@ export class TicketDto {
 }
 
 /* Заказ */
-export class OrderDto {
+export class OrderDTO {
   @IsOptional()
   @IsEmail()
-  email?: string; // Почта
+  email: string; // Почта
   @IsOptional()
   @IsPhoneNumber()
-  phone?: string; // Телефон
+  phone: string; // Телефон
   @IsArray()
-  tickets: TicketDto[]; // Билеты
+  tickets: TicketDTO[]; // Билеты
+}
+
+/* Проданное место */
+export class SalePlaceDTO {
+  @IsMongoId()
+  film: string; // ID фильма
+  @IsMongoId()
+  session: string; // ID сеанса
+  @IsString()
+  place: string; // Место
 }

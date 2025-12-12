@@ -36,6 +36,12 @@ export class SheduleDTO {
   taken: string[]; // Получено??
 }
 
+/* Ответка расписанием клиенту */
+export class ResponseShedule {
+  total: number;
+  items: SheduleDTO[];
+}
+
 /* Фильмы */
 export class FilmDTO {
   @IsMongoId()
@@ -58,4 +64,10 @@ export class FilmDTO {
   description: string; // Описание
   @IsArray()
   schedule?: SheduleDTO[]; // Расписание
+}
+
+/* Ответка фильмами клиенту */
+export class ResponseFilms {
+  total: number;
+  items: FilmDTO[];
 }

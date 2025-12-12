@@ -4,11 +4,16 @@
 
 import { ConfigModule } from '@nestjs/config';
 
+const appConfig = process.env;
+
 export const configProvider = {
   imports: [ConfigModule.forRoot()],
   provide: 'CONFIG',
   useValue: <AppConfig>{
-    //TODO прочесть переменные среды
+    database: {
+      url: appConfig.DATABASE_URL,
+      driver: appConfig.DATABASE_DRIVER,
+    },
   },
 };
 
