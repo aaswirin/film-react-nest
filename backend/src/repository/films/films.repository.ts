@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { FilmDocument } from './films.types';
 import { FilmDTO } from 'src/films/dto/films.dto';
-import { SalePlaceDTO } from '../order/dto/order.dto';
+import { SalePlaceDTO } from '../../order/dto/order.dto';
 
 interface IFilmsRepository {
   getFilms(): Promise<FilmDTO[]>;

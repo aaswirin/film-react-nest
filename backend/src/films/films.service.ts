@@ -9,7 +9,7 @@ import {
   SheduleDTO,
   ResponseShedule,
 } from './dto/films.dto';
-import { FilmsRepository } from '../repository/films.repository';
+import { FilmsRepository } from '../repository/films/films.repository';
 
 @Injectable()
 export class FilmsService {
@@ -22,6 +22,7 @@ export class FilmsService {
   async getAll(): Promise<ResponseFilms> {
     const films: FilmDTO[] = await this.filmsRepository.getFilms();
     const total: number = films.length;
+
     return {
       total: total,
       items: films,
@@ -37,6 +38,7 @@ export class FilmsService {
     const film: FilmDTO[] = await this.filmsRepository.getSchedule(id);
     const sessions: SheduleDTO[] = film[0].schedule;
     const total: number = sessions.length;
+
     return {
       total: total,
       items: sessions,

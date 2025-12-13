@@ -3,9 +3,9 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { FilmsRepository } from '../repository/films.repository';
-import { OrderRepository } from '../repository/order.repository';
-import { OrderDTO, TicketDTO } from './dto/order.dto';
+import { FilmsRepository } from '../repository/films/films.repository';
+import { OrderRepository } from '../repository/orders/order.repository';
+import { OrderDTO, ResponseOrder, TicketDTO } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -14,9 +14,17 @@ export class OrderService {
     private readonly orderRepository: OrderRepository,
   ) {}
 
-  async createOrder(orderData: OrderDTO): Promise<any> {
+  /**
+   * Создать заказ
+   * @param orderData - собственно заказ
+   * @return Object - результат заказа
+   */
+  async createOrder(orderData: OrderDTO): Promise<ResponseOrder> {
     const ticketsData: TicketDTO[] = orderData.tickets;
 
+    /**
+     * Проверка свободных мест
+     */
     for (const ticket of ticketsData) {
       const check = await this.filmsRepository.getFreePlace({
         film: ticket.film,
@@ -29,8 +37,13 @@ export class OrderService {
       }
     }
 
+    const id = await this.orderRepository.saveOrder(orderData);
+
     const saleData = [];
 
+    /**
+     * Продажа билетов
+     */
     for (const order of ticketsData) {
       const sale = await this.filmsRepository.salePlace({
         film: order.film,
@@ -38,10 +51,7 @@ export class OrderService {
         place: `${order.row}:${order.seat}`,
       });
 
-      console.log(sale);
       if (sale) {
-        const id = await this.orderRepository.saveOrder(orderData);
-        console.log(id);
         const data = { ...order, id };
         saleData.push(data);
       }
@@ -51,6 +61,9 @@ export class OrderService {
       }
     }
 
+    /**
+     * Продано! Клиент ушёл довольным...
+     */
     return {
       total: saleData.length,
       items: saleData,

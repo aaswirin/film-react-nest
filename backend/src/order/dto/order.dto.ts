@@ -30,6 +30,9 @@ export class TicketDTO {
 /* Заказ */
 export class OrderDTO {
   @IsOptional()
+  @IsMongoId()
+  id: string; // ID заказа
+  @IsOptional()
   @IsEmail()
   email: string; // Почта
   @IsOptional()
@@ -41,10 +44,20 @@ export class OrderDTO {
 
 /* Проданное место */
 export class SalePlaceDTO {
+  @IsOptional()
+  @IsMongoId()
+  if?: string;
   @IsMongoId()
   film: string; // ID фильма
   @IsMongoId()
   session: string; // ID сеанса
   @IsString()
   place: string; // Место
+}
+/* Ответка заказом клиенту */
+export class ResponseOrder {
+  message?: string;
+  error?: string;
+  total?: number;
+  items?: SalePlaceDTO[];
 }

@@ -10,12 +10,20 @@ import { ResponseFilms, ResponseShedule } from './dto/films.dto';
 export class FilmsController {
   constructor(private readonly filmsService: FilmsService) {}
 
+  /**
+   * Отдать на клиента все фильмы
+   * @return ResponseFilms - список фильмов
+   */
   @Get()
   async getAllFilms(): Promise<ResponseFilms> {
-    const films = this.filmsService.getAll();
-    return films;
+    return this.filmsService.getAll();
   }
 
+  /**
+   * Отдать расписание сеансов
+   * @param id - id фильма
+   * @return ResponseShedule - расписание
+   */
   @HttpCode(200)
   @Get(':id/schedule')
   async getSchedule(@Param('id') id: string): Promise<ResponseShedule> {

@@ -3,37 +3,49 @@
  */
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
+/**
+ * Расписание
+ */
 @Schema()
 export class Schedule {
   @Prop({ required: true })
   id: string;
+  @Prop({ type: String, default: '' })
   daytime: string;
+  @Prop({ type: Number, default: '' })
   hall: number;
+  @Prop({ type: Number, default: '' })
   rows: number;
+  @Prop({ type: Number, default: '' })
   seats: number;
+  @Prop({ type: Number, default: '' })
   price: number;
   @Prop({ type: [String], default: [] })
   taken: string[];
 }
 
-export type ScheduleDocument = Schedule & Document;
-export const ScheduleSchema = SchemaFactory.createForClass(Schedule);
-
 @Schema()
 export class Film {
-  @Prop({ required: true })
+  @Prop({ type: Types.ObjectId, required: true })
   id: string;
+  @Prop({ type: Number, default: '' })
   rating: number;
+  @Prop({ type: String, default: '' })
   director: string;
+  @Prop({ type: [String], default: [] })
   tags: string[];
+  @Prop({ type: String, default: '' })
   image: string;
+  @Prop({ type: String, default: '' })
   cover: string;
+  @Prop({ type: String, default: '' })
   title: string;
+  @Prop({ type: String, default: '' })
   about: string;
+  @Prop({ type: String, default: '' })
   description: string;
-
   @Prop({ type: [Schedule], default: [] })
   schedule: Schedule[];
 }
@@ -41,26 +53,3 @@ export class Film {
 export type FilmDocument = Film & Document;
 
 export const FilmSchema = SchemaFactory.createForClass(Film);
-
-export type TSchedule = {
-  id: string;
-  daytime: string;
-  hall: number;
-  rows: number;
-  seats: number;
-  price: number;
-  taken: string[];
-};
-
-export type TFilm = {
-  id: string;
-  rating: number;
-  director: string;
-  tags: string[];
-  image: string;
-  cover: string;
-  title: string;
-  about: string;
-  description: string;
-  schedule: TSchedule[];
-};
