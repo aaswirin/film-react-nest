@@ -13,10 +13,13 @@
     "component": "sh ./bin/copy.sh Component src/components"
   },
   "dependencies": {
+    "@nestjs/typeorm": "^11.0.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
+    "pg": "^8.16.3",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.6.1",

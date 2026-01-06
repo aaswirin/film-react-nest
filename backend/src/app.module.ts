@@ -5,12 +5,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { appConfig, configProvider } from './app.config.provider';
 import { join } from 'path';
 import { MongooseModule } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import configuration, { appConfig } from './configuration';
 
 /* Всё про фильмы */
 import { FilmsController } from './films/films.controller';
@@ -35,9 +35,7 @@ if (appConfig.DEBUG === '*') {
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
-      cache: true,
-      envFilePath: '.env',
+      load: [configuration],
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -45,7 +43,7 @@ if (appConfig.DEBUG === '*') {
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('DATABASE_URL'),
+        uri: configService.get<string>('database.url'),
       }),
       inject: [ConfigService],
     }),
@@ -71,12 +69,6 @@ if (appConfig.DEBUG === '*') {
     }),
   ],
   controllers: [FilmsController, OrderController],
-  providers: [
-    configProvider,
-    FilmsService,
-    FilmsRepository,
-    OrderService,
-    OrderRepository,
-  ],
+  providers: [FilmsService, FilmsRepository, OrderService, OrderRepository],
 })
 export class AppModule {}
