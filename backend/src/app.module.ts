@@ -15,6 +15,7 @@ import configuration, { appConfig } from './configuration';
 import { DatabasesModule } from './repository/databases.module';
 import { OrderModule } from './order/order.module';
 import { FilmsModule } from './films/films.module';
+import { FilmsService } from './films/films.service';
 
 /**
  * Для отладки
@@ -55,5 +56,6 @@ if (appConfig.DEBUG === '*') {
   ],
   controllers: [],
   providers: [],
+  exports: [],
 })
 export class AppModule {}

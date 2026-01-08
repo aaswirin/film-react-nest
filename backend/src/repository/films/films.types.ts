@@ -4,6 +4,15 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { FilmDTO } from 'src/films/dto/films.dto';
+import { SalePlaceDTO } from 'src/order/dto/order.dto';
+
+export abstract class FilmsRepository {
+  abstract getFilms(): Promise<FilmDTO[]>;
+  abstract getSchedule(id: string): Promise<FilmDTO[]>;
+  abstract getFreePlace(orderData: SalePlaceDTO): Promise<boolean>;
+  abstract salePlace(orderData: SalePlaceDTO): Promise<boolean>;
+}
 
 /**
  * Расписание

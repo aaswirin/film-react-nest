@@ -5,17 +5,19 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration, { appConfig } from '../configuration';
 
 /* Всё про фильмы */
 import { FilmSchema } from './films/films.types';
-import { FilmsRepository } from './films/films.repository';
-import { FilmsService } from '../films/films.service';
+import { FilmsRepositoryMongoDB } from './films/films.repository.mongodb';
+import { FilmsRepositoryPostgreSQL } from './films/films.repository.postgresql';
+import { FilmEntity, ScheduleEntity } from '../films/dto/film.entity';
 
 /* Всё про заказ */
 import { OrderSchema } from './orders/order.types';
-import { OrderRepository } from './orders/order.repository';
-import { OrderService } from '../order/order.service';
+import { OrderRepositoryMongoDB } from './orders/order.repository.mongodb';
+import { OrderRepositoryPostgreSQL } from './orders/order.repository.postgresql';
 
 @Global()
 @Module({})
@@ -35,10 +37,10 @@ export class DatabasesModule {
         imports.push(
           MongooseModule.forRootAsync({
             imports: [ConfigModule],
-            useFactory: async (configService: ConfigService) => ({
-              uri: configService.get<string>('database.url'),
-            }),
             inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => ({
+              uri: `${configService.get<string>('database.url')}:${configService.get<string>('database.port')}/${configService.get<string>('database.databaseName')}`,
+            }),
           }),
           MongooseModule.forFeature([
             { name: 'film', schema: FilmSchema },
@@ -46,14 +48,30 @@ export class DatabasesModule {
           ]),
         );
 
-        providers.push(FilmsService);
-        providers.push(FilmsRepository);
-        providers.push(OrderService);
-        providers.push(OrderRepository);
+        providers.push(FilmsRepositoryMongoDB, OrderRepositoryMongoDB);
 
         break;
       // PostgreSQL
       case 'postgres':
+        imports.push(
+          TypeOrmModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => ({
+              type: 'postgres',
+              host: config.get('database.url'),
+              port: Number(config.get('database.port')),
+              database: config.get('database.databaseName'),
+              username: config.get('database.username'),
+              password: config.get('database.password'),
+              entities: [FilmEntity, ScheduleEntity],
+              synchronize: false,
+            }),
+          }),
+          TypeOrmModule.forFeature([FilmEntity, ScheduleEntity]),
+        );
+
+        providers.push(FilmsRepositoryPostgreSQL, OrderRepositoryPostgreSQL);
         break;
     }
 

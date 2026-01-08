@@ -3,15 +3,15 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { FilmsRepository } from '../repository/films/films.repository';
-import { OrderRepository } from '../repository/orders/order.repository';
+import { OrderRepositoryMongoDB } from '../repository/orders/order.repository.mongodb';
 import { OrderDTO, ResponseOrder, TicketDTO } from './dto/order.dto';
+import { FilmsRepositoryMongoDB } from '../repository/films/films.repository.mongodb';
 
 @Injectable()
 export class OrderService {
   constructor(
-    private readonly filmsRepository: FilmsRepository,
-    private readonly orderRepository: OrderRepository,
+    private readonly filmsRepository: FilmsRepositoryMongoDB,
+    private readonly orderRepository: OrderRepositoryMongoDB,
   ) {}
 
   /**

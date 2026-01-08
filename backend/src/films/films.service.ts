@@ -9,11 +9,11 @@ import {
   SheduleDTO,
   ResponseShedule,
 } from './dto/films.dto';
-import { FilmsRepository } from '../repository/films/films.repository';
+import { FilmsRepositoryMongoDB } from '../repository/films/films.repository.mongodb';
 
 @Injectable()
 export class FilmsService {
-  constructor(private readonly filmsRepository: FilmsRepository) {}
+  constructor(private readonly filmsRepository: FilmsRepositoryMongoDB) {}
 
   /**
    * Отдать все фильмы

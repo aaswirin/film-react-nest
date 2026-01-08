@@ -45,7 +45,7 @@ export class ResponseShedule {
 /* Фильмы */
 export class FilmDTO {
   @IsMongoId()
-  id: string; // ID заказа
+  id: string; // ID фильма
   @IsString()
   rating: string; // Рейтинг
   @IsString()

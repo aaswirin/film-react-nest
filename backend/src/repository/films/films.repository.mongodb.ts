@@ -1,24 +1,19 @@
 /**
- * Репозиторий для фильмов
+ * Репозиторий для фильмов. MongoDB
  */
 
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { FilmDocument } from './films.types';
+import { FilmDocument, FilmsRepository } from './films.types';
 import { FilmDTO } from 'src/films/dto/films.dto';
 import { SalePlaceDTO } from '../../order/dto/order.dto';
 
-interface IFilmsRepository {
-  getFilms(): Promise<FilmDTO[]>;
-  getSchedule(id: string): Promise<FilmDTO[]>;
-  getFreePlace(orderData: SalePlaceDTO): Promise<boolean>;
-  salePlace(orderData: SalePlaceDTO): Promise<boolean>;
-}
-
 @Injectable()
-export class FilmsRepository implements IFilmsRepository {
-  constructor(@InjectModel('film') private filmsModel: Model<FilmDocument>) {}
+export class FilmsRepositoryMongoDB extends FilmsRepository {
+  constructor(@InjectModel('film') private filmsModel: Model<FilmDocument>) {
+    super();
+  }
 
   /**
    * Получить список фильмов
