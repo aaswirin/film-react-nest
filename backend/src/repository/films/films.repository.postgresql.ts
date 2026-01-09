@@ -3,15 +3,22 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { FilmDocument, FilmsRepository } from './films.types';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { FilmEntity, ScheduleEntity } from '../../films/dto/film.entity';
 import { FilmDTO } from '../../films/dto/films.dto';
 import { SalePlaceDTO } from '../../order/dto/order.dto';
+import { FilmsRepository } from './films.types';
 
 @Injectable()
 export class FilmsRepositoryPostgreSQL extends FilmsRepository {
-  constructor(@InjectModel('film') private filmsModel: Model<FilmDocument>) {
+  constructor(
+    @InjectRepository(FilmEntity)
+    private readonly films: Repository<FilmEntity>,
+    @InjectRepository(ScheduleEntity)
+    private readonly schedules: Repository<ScheduleEntity>,
+  ) {
     super();
   }
 
@@ -20,7 +27,11 @@ export class FilmsRepositoryPostgreSQL extends FilmsRepository {
    * @return FilmDTO[] - список фильмов
    */
   async getFilms(): Promise<FilmDTO[]> {
-    const films: FilmDTO[] = await this.filmsModel.find({});
+    //const films: FilmDTO[] = await this.filmsModel.find({});
+    const films: FilmDTO[] = (await this.films.find()).map((item) => ({
+      ...item,
+      schedule: [],
+    }));
     return films;
   }
 
@@ -29,9 +40,23 @@ export class FilmsRepositoryPostgreSQL extends FilmsRepository {
    * @param id - ID фильма
    * @return FilmDTO[] - фильм
    */
-  async getSchedule(id: string): Promise<FilmDTO[]> {
-    const film: FilmDTO[] = await this.filmsModel.find({ id: id }, { _id: 0 });
-    return film;
+  async getSchedule(id: string): Promise<FilmDTO> {
+    //const film: FilmDTO[] = await this.filmsModel.find({ id: id }, { _id: 0 });
+    //return film;
+
+    const film = await this.films.findOne({ where: { id } });
+    if (!film) {
+      return null;
+    }
+    const schedule = await this.schedules.find({ where: { filmId: id } });
+
+    return {
+      ...film,
+      schedule: schedule.map((item) => ({
+        ...item,
+        taken: item.taken.split(','),
+      })),
+    };
   }
 
   /**

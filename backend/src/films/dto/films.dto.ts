@@ -33,7 +33,7 @@ export class SheduleDTO {
   @IsNumber({ maxDecimalPlaces: 2 })
   price: number; // Цена
   @IsArray()
-  taken: string[]; // Получено??
+  taken: string[]; // Продано
 }
 
 /* Ответка расписанием клиенту */
@@ -46,8 +46,8 @@ export class ResponseShedule {
 export class FilmDTO {
   @IsMongoId()
   id: string; // ID фильма
-  @IsString()
-  rating: string; // Рейтинг
+  @IsNumber()
+  rating: number; // Рейтинг
   @IsString()
   director: string; // Режиссёр
   @IsArray()
@@ -63,7 +63,7 @@ export class FilmDTO {
   @IsString()
   description: string; // Описание
   @IsArray()
-  schedule?: SheduleDTO[]; // Расписание
+  schedule: SheduleDTO[]; // Расписание
 }
 
 /* Ответка фильмами клиенту */
