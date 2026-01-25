@@ -8,6 +8,7 @@ import { OrderDTO, TicketDTO } from '../../order/dto/order.dto';
 
 export abstract class OrderRepository {
   abstract saveOrder(order: OrderDTO): Promise<string>;
+  static TOKEN = 'ORDER';
 }
 
 @Schema()

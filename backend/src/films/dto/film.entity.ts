@@ -21,11 +21,44 @@ import {
   Min,
 } from 'class-validator';
 
-@Entity()
+@Entity('films')
+export class FilmEntity {
+  @PrimaryGeneratedColumn('uuid')
+  @IsUUID()
+  id: string; // ID фильма
+  @Column()
+  @IsString()
+  rating: number; // Рейтинг
+  @Column()
+  @IsString()
+  director: string; // Режиссёр
+  @Column()
+  @IsString()
+  tags: string; // Теги
+  @Column()
+  @IsFQDN()
+  image: string; // Изображение
+  @Column()
+  @IsFQDN()
+  cover: string; // Афиша
+  @Column()
+  @IsString()
+  title: string; // Название
+  @Column()
+  @IsString()
+  about: string; // О фильме
+  @Column()
+  @IsString()
+  description: string; // Описание
+  @OneToMany(() => ScheduleEntity, (schedule) => schedule.film)
+  schedules: ScheduleEntity[];
+}
+
+@Entity('schedules')
 export class ScheduleEntity {
   @PrimaryGeneratedColumn()
   @IsUUID()
-  id: string; // ID Расписания
+  id: string; // ID сеанса
   @Column()
   @IsDateString()
   daytime: string; // Дата заказа
@@ -43,46 +76,12 @@ export class ScheduleEntity {
   @Column()
   seats: number;
   @Column()
-  @IsArray()
-  taken: string[]; // Продано
+  @IsString()
+  taken: string; // Продано
   @Column()
   @IsUUID()
   filmId: string; // Ссылка на фильм
   @ManyToOne(() => FilmEntity, (film) => film.schedules)
   @JoinColumn({ name: 'filmId' })
   film: FilmEntity;
-}
-
-@Entity()
-export class FilmEntity {
-  @PrimaryGeneratedColumn('uuid')
-  @IsUUID()
-  id: string; // ID фильма
-  @Column()
-  @IsString()
-  rating: number; // Рейтинг
-  @Column()
-  @IsString()
-  director: string; // Режиссёр
-  @Column()
-  @IsArray()
-  tags: string[]; // Теги
-  @Column()
-  @IsFQDN()
-  image: string; // Изображение
-  @Column()
-  @IsFQDN()
-  cover: string; // Афиша
-  @Column()
-  @IsString()
-  title: string; // Название
-  @Column()
-  @IsString()
-  about: string; // О фильме
-  @Column()
-  @IsString()
-  description: string; // Описание
-  @OneToMany(() => ScheduleEntity, (schedule) => schedule.film)
-  @IsArray()
-  schedules: ScheduleEntity[];
 }

@@ -12,6 +12,7 @@ export abstract class FilmsRepository {
   abstract getSchedule(id: string): Promise<FilmDTO[]>;
   abstract getFreePlace(orderData: SalePlaceDTO): Promise<boolean>;
   abstract salePlace(orderData: SalePlaceDTO): Promise<boolean>;
+  static TOKEN = 'FILM';
 }
 
 /**

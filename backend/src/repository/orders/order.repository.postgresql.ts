@@ -2,68 +2,41 @@
  * Репозиторий для заказа. PostgreSQL
  */
 
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { OrderDocument, OrderRepository } from './order.types';
-import { OrderDTO } from 'src/order/dto/order.dto';
-import { ConfigService } from '@nestjs/config';
-
-/* Количество миллисекунд в сутках */
-const mSecondsInDay = 24 * 60 * 60 * 1000;
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { OrderRepository } from './order.types';
+import { OrderDTO, TicketDTO } from 'src/order/dto/order.dto';
+import { ScheduleEntity } from '../../films/dto/film.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class OrderRepositoryPostgreSQL implements OrderRepository {
+export class OrderRepositoryPostgreSQL extends OrderRepository {
   constructor(
-    private config: ConfigService,
-    @InjectModel('orders') private orderModel: Model<OrderDocument>,
-  ) {}
+    @InjectRepository(ScheduleEntity)
+    private readonly schedules: Repository<ScheduleEntity>,
+  ) {
+    super();
+  }
 
-  /**
-   * Дата последней зачистки заказов. Если только стартанули,
-   * то чистим однозначно, если сервер работает стопятьсот дней,
-   * то чистим раз в сутки!
-   */
-  private lastDataClearOrder: Date = null;
-
-  /** Сохранить заказ для потомков
-   *  ... и налоговой
+  /** Обработка заказа
    * @param order - заказ
    * @return id - id заказа
    */
   async saveOrder(order: OrderDTO): Promise<string> {
-    const orderSave = await this.orderModel.create({
-      email: order.email,
-      phone: order.phone,
-      tickets: order.tickets,
+    const id = order.tickets[0].session;
+    const schedule = await this.schedules.findOne({
+      where: { id },
+    });
+    if (!schedule) throw NotFoundException;
+
+    const taken = schedule.taken.split(',').filter(Boolean);
+
+    order.tickets.forEach((ticket: TicketDTO) => {
+      taken.push(`${ticket.row}:${ticket.seat}`);
     });
 
-    const daysToDeleteOrders = parseInt(
-      this.config.get<string>('DATABASE_DAYS_TO_DELETE_ORDER') || '365',
-    );
+    await this.schedules.update({ id }, { taken: taken.join(',') });
 
-    /** Дабы база не распухала, удалим всё что позже N дней (см. в .env DATABASE_DAYS_TO_DELETE_ORDER,
-     * по умолчанию год)
-     * ... но удалять надо раз в сутки, что бы база данных не перенапрягалась
-     */
-    let diffDays = 1;
-    if (this.lastDataClearOrder) {
-      diffDays = Math.ceil(
-        Math.abs(new Date().getTime() - this.lastDataClearOrder.getTime()) /
-        mSecondsInDay,
-      );
-    }
-
-    if (!this.lastDataClearOrder || diffDays > 0) {
-      await this.orderModel.deleteMany({
-        date: {
-          $lt: new Date(Date.now() - daysToDeleteOrders * mSecondsInDay),
-        },
-      });
-    }
-
-    // Сохранить дату зачистки
-    this.lastDataClearOrder = new Date();
-    return orderSave.id;
+    return schedule.id;
   }
 }

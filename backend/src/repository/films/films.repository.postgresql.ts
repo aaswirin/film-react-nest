@@ -2,9 +2,13 @@
  * Репозиторий для фильмов. PostgreSQL
  */
 
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 
 import { FilmEntity, ScheduleEntity } from '../../films/dto/film.entity';
 import { FilmDTO } from '../../films/dto/films.dto';
@@ -27,12 +31,11 @@ export class FilmsRepositoryPostgreSQL extends FilmsRepository {
    * @return FilmDTO[] - список фильмов
    */
   async getFilms(): Promise<FilmDTO[]> {
-    //const films: FilmDTO[] = await this.filmsModel.find({});
-    const films: FilmDTO[] = (await this.films.find()).map((item) => ({
+    return (await this.films.find({ order: { title: 'ASC' } })).map((item) => ({
       ...item,
+      tags: item.tags.split(',').filter(Boolean),
       schedule: [],
     }));
-    return films;
   }
 
   /**
@@ -40,23 +43,26 @@ export class FilmsRepositoryPostgreSQL extends FilmsRepository {
    * @param id - ID фильма
    * @return FilmDTO[] - фильм
    */
-  async getSchedule(id: string): Promise<FilmDTO> {
-    //const film: FilmDTO[] = await this.filmsModel.find({ id: id }, { _id: 0 });
-    //return film;
-
+  async getSchedule(id: string): Promise<FilmDTO[]> {
     const film = await this.films.findOne({ where: { id } });
     if (!film) {
       return null;
     }
-    const schedule = await this.schedules.find({ where: { filmId: id } });
+    const schedule = await this.schedules.find({
+      where: { filmId: id },
+      order: { daytime: 'ASC' },
+    });
 
-    return {
-      ...film,
-      schedule: schedule.map((item) => ({
-        ...item,
-        taken: item.taken.split(','),
-      })),
-    };
+    return [
+      {
+        ...film,
+        tags: film.tags.split(',').filter(Boolean),
+        schedule: schedule.map((item) => ({
+          ...item,
+          taken: item.taken.split(',').filter(Boolean),
+        })),
+      },
+    ];
   }
 
   /**
@@ -65,13 +71,14 @@ export class FilmsRepositoryPostgreSQL extends FilmsRepository {
    * @return boolean - результат проверки
    */
   async getFreePlace(orderData: SalePlaceDTO): Promise<boolean> {
-    const freePlace = await this.filmsModel.findOne({
-      id: orderData.film,
-      'shedule.id': orderData.session,
-      'shedule.taken': orderData.place,
+    const freePlace = await this.schedules.find({
+      where: {
+        id: orderData.id,
+        filmId: orderData.film,
+        taken: Like(`%${orderData.place}%`),
+      },
     });
-
-    return !freePlace;
+    return !freePlace.length;
   }
 
   /**
@@ -80,21 +87,19 @@ export class FilmsRepositoryPostgreSQL extends FilmsRepository {
    * @return boolean - продано
    */
   async salePlace(orderData: SalePlaceDTO): Promise<boolean> {
-    const res = await this.filmsModel.updateOne(
-      {
-        id: orderData.film,
-        'schedule.id': orderData.session,
-      },
-      {
-        $addToSet: {
-          'schedule.$[s].taken': orderData.place,
-        },
-      },
-      {
-        arrayFilters: [{ 's.id': orderData.session }],
-      },
-    );
+    const id = orderData.id;
+    const schedule = await this.schedules.findOne({
+      where: { id },
+    });
+    if (!schedule) throw NotFoundException;
 
-    return res.modifiedCount > 0;
+    const taken = schedule.taken.split(',').filter(Boolean);
+
+    if (taken.includes(orderData.place)) throw BadRequestException;
+
+    taken.push(orderData.place);
+
+    await this.schedules.update({ id }, { taken: taken.join(',') });
+    return true;
   }
 }

@@ -7,15 +7,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration, { appConfig } from '../configuration';
+import mongoose from 'mongoose';
 
 /* Всё про фильмы */
-import { FilmSchema } from './films/films.types';
+import { FilmSchema, FilmsRepository } from './films/films.types';
 import { FilmsRepositoryMongoDB } from './films/films.repository.mongodb';
 import { FilmsRepositoryPostgreSQL } from './films/films.repository.postgresql';
 import { FilmEntity, ScheduleEntity } from '../films/dto/film.entity';
 
 /* Всё про заказ */
-import { OrderSchema } from './orders/order.types';
+import { OrderRepository, OrderSchema } from './orders/order.types';
 import { OrderRepositoryMongoDB } from './orders/order.repository.mongodb';
 import { OrderRepositoryPostgreSQL } from './orders/order.repository.postgresql';
 
@@ -30,10 +31,18 @@ export class DatabasesModule {
       }),
     ];
     const providers = [];
+    const debug = appConfig.DEBUG;
 
     switch (driver) {
       // MongoDB
       case 'mongodb':
+        /**
+         * Для отладки
+         * если DEBUG=*, то показываем запросы к MongoDB
+         */
+        if (debug === '*') {
+          mongoose.set('debug', true);
+        }
         imports.push(
           MongooseModule.forRootAsync({
             imports: [ConfigModule],
@@ -48,8 +57,16 @@ export class DatabasesModule {
           ]),
         );
 
-        providers.push(FilmsRepositoryMongoDB, OrderRepositoryMongoDB);
-
+        providers.push(
+          {
+            provide: FilmsRepository.TOKEN,
+            useClass: FilmsRepositoryMongoDB,
+          },
+          {
+            provide: OrderRepository.TOKEN,
+            useClass: OrderRepositoryMongoDB,
+          },
+        );
         break;
       // PostgreSQL
       case 'postgres':
@@ -59,6 +76,7 @@ export class DatabasesModule {
             inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
               type: 'postgres',
+              logging: debug === '*',
               host: config.get('database.url'),
               port: Number(config.get('database.port')),
               database: config.get('database.databaseName'),
@@ -71,7 +89,16 @@ export class DatabasesModule {
           TypeOrmModule.forFeature([FilmEntity, ScheduleEntity]),
         );
 
-        providers.push(FilmsRepositoryPostgreSQL, OrderRepositoryPostgreSQL);
+        providers.push(
+          {
+            provide: FilmsRepository.TOKEN,
+            useClass: FilmsRepositoryPostgreSQL,
+          },
+          {
+            provide: OrderRepository.TOKEN,
+            useClass: OrderRepositoryPostgreSQL,
+          },
+        );
         break;
     }
 
