@@ -11,7 +11,6 @@ import {
   JoinColumn,
 } from 'typeorm';
 import {
-  IsArray,
   IsDateString,
   IsFQDN,
   IsInt,
