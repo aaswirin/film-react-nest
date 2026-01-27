@@ -1,23 +1,19 @@
 /**
- * Репозиторий для заказа
+ * Репозиторий для заказа. MongoDB
  */
 
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OrderDocument } from './order.types';
+import { OrderDocument, OrderRepository } from './order.types';
 import { OrderDTO } from 'src/order/dto/order.dto';
 import { ConfigService } from '@nestjs/config';
 
 /* Количество миллисекунд в сутках */
 const mSecondsInDay = 24 * 60 * 60 * 1000;
 
-interface IOrderRepository {
-  saveOrder(order: OrderDTO): Promise<string>;
-}
-
 @Injectable()
-export class OrderRepository implements IOrderRepository {
+export class OrderRepositoryMongoDB implements OrderRepository {
   constructor(
     private config: ConfigService,
     @InjectModel('orders') private orderModel: Model<OrderDocument>,

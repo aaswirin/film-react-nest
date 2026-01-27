@@ -46,7 +46,7 @@ export class OrderDTO {
 export class SalePlaceDTO {
   @IsOptional()
   @IsMongoId()
-  if?: string;
+  id?: string;
   @IsMongoId()
   film: string; // ID фильма
   @IsMongoId()

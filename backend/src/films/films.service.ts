@@ -2,18 +2,21 @@
  * Фильмы. Сервис
  */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   FilmDTO,
   ResponseFilms,
   SheduleDTO,
   ResponseShedule,
 } from './dto/films.dto';
-import { FilmsRepository } from '../repository/films/films.repository';
+import { FilmsRepository } from 'src/repository/films/films.types';
 
 @Injectable()
 export class FilmsService {
-  constructor(private readonly filmsRepository: FilmsRepository) {}
+  constructor(
+    @Inject(FilmsRepository.TOKEN)
+    private readonly filmsRepository: FilmsRepository,
+  ) {}
 
   /**
    * Отдать все фильмы

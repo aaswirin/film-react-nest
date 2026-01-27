@@ -4,7 +4,12 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { TicketDTO } from '../../order/dto/order.dto';
+import { OrderDTO, TicketDTO } from '../../order/dto/order.dto';
+
+export abstract class OrderRepository {
+  abstract saveOrder(order: OrderDTO): Promise<string>;
+  static TOKEN = 'ORDER';
+}
 
 @Schema()
 export class Order {
