@@ -4,8 +4,8 @@
 
 import { Inject, Injectable } from '@nestjs/common';
 import { OrderDTO, ResponseOrder, TicketDTO } from './dto/order.dto';
-import { FilmsRepository } from 'src/repository/films/films.types';
-import { OrderRepository } from 'src/repository/orders/order.types';
+import { FilmsRepository } from '../repository/films/films.types';
+import { OrderRepository } from '../repository/orders/order.types';
 
 @Injectable()
 export class OrderService {

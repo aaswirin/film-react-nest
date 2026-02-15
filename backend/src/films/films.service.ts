@@ -9,7 +9,7 @@ import {
   SheduleDTO,
   ResponseShedule,
 } from './dto/films.dto';
-import { FilmsRepository } from 'src/repository/films/films.types';
+import { FilmsRepository } from '../repository/films/films.types';
 
 @Injectable()
 export class FilmsService {
