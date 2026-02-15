@@ -59,10 +59,9 @@ describe('Json Logger', () => {
     const parsed = JSON.parse(callData);
     expect(parsed.level).toBe('log');
     expect(parsed.message).toBe(testData.message);
-    expect(parsed.optionalParams).toEqual([[
-      testData.optionalParam1,
-      testData.optionalParam2,
-    ]]);
+    expect(parsed.optionalParams).toEqual([
+      [testData.optionalParam1, testData.optionalParam2],
+    ]);
   });
 
   it('Уровень -> error', () => {
