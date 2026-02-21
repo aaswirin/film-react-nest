@@ -11,7 +11,7 @@ WORKDIR /app
 COPY . .
 
 # Установить модули
-RUN npm сi
+RUN npm ci
 
 # Собрать
 RUN npm run build
