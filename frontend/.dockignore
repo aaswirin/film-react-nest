@@ -15,7 +15,3 @@ Dockerfile
 # В продакшене тоже лишнее
 README.md
 LICENSE
-
-# Примеры тоже не нужны
-.env.example
-
