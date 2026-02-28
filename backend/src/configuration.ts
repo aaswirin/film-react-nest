@@ -22,4 +22,5 @@ export default () => ({
     daysToDeleteOrders: appConfig.DATABASE_DAYS_TO_DELETE_ORDER || 365,
   },
   debug: appConfig.DEBUG,
+  logger: appConfig.TYPE_LOGGER || '',
 });

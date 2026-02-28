@@ -1,0 +1,65 @@
+services:
+  frontend:
+    image: ghcr.io/aaswirin/film-react-nest/frontend:latest
+    container_name: frontend
+    networks:
+      - nginx
+    volumes:
+      - frontend:/app/dist
+  backend:
+    image: ghcr.io/aaswirin/film-react-nest/backend:latest
+    container_name: backend
+    depends_on:
+      - postgres
+    networks:
+      - nginx
+      - postgres
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    container_name: postgres
+    networks:
+      - nginx
+      - postgres
+    env_file:
+      - ./backend/.env
+    volumes:
+      - pg-data:/var/lib/postgresql/18/main
+    restart: unless-stopped
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - postgres
+      - nginx
+    env_file:
+      - ./backend/.env
+    volumes:
+      - pgadmin:/var/lib/pgadmin/data
+    restart: unless-stopped
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 80:80
+      - 8080:8080
+      - 443:443
+    networks:
+      - nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/dist:/usr/share/nginx/html
+    restart: unless-stopped
+networks:
+  nginx:
+  postgres:
+volumes:
+  pg-data:
+  frontend:
+  pgadmin:
